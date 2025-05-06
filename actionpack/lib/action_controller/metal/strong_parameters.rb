@@ -676,6 +676,9 @@ module ActionController
     # `expect` is more strict with types to avoid a number of potential pitfalls
     # that may be encountered with the `.require.permit` pattern.
     #
+    # `expect` will raise an `ActionController::ParameterMissing` exception when 
+    # any root key with parameters specified is not supplied with at least one valid parameter.
+    #
     # For example:
     #
     #     params = ActionController::Parameters.new(comment: { text: "hello" })
@@ -768,6 +771,14 @@ module ActionController
     #     permitted                 # => ["rails", "parameters"]
     #     permitted.is_a?(Array)    # => true
     #     permitted.size            # => 2
+    #
+    # At least one permitted parameter must be supplied. This behaviour is different from the `.require.permit` pattern
+    #
+    #     params = ActionController::Parameters.new(comment: { text: "Hello" })
+    #     params.expect(comment: [:message])
+    #     # => ActionController::ParameterMissing: param is missing or the value is empty or invalid: comment
+    #     params.expect(comment: [:message, :text])
+    #     #<ActionController::Parameters {"text" => "Hello"} permitted: true>
     #
     def expect(*filters)
       params = permit_filters(filters)
